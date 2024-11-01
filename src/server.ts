@@ -1,10 +1,14 @@
 import express from "express";
+import { PrismaClient } from "@prisma/client";
 
 const port = 3000;
 const app = express();
+const prisma = new PrismaClient();
 
-app.get("/", (req, res) => {
-    res.send("Lista de Tarefas");
+app.get("/", async (req, res) => {
+    const tasks = await prisma.Tarefas.findMany();
+
+    res.json(tasks);
 });
 
 app.listen(port, () => {
