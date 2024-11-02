@@ -6,9 +6,18 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.get("/", async (req, res) => {
-    const tasks = await prisma.Tarefas.findMany();
+    try {
+        const tasks = await prisma.Tarefas.findMany({
+            orderBy: {
+                ordem_apresentacao: "asc",
+            },
+        });
 
-    res.json(tasks);
+        res.json(tasks);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Erro ao listar as tarefas." });
+    }
 });
 
 app.listen(port, () => {
