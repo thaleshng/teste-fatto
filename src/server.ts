@@ -77,6 +77,33 @@ app.post("/tarefas", async (req, res) => {
     }
 });
 
+app.delete("/tarefas/:id", async (req, res) => {
+    const id = Number(req.params.id);
+
+    try {
+        const task = await prisma.Tarefas.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!task) {
+            return res.status(404).json({ message: "Tarefa não encontrada." });
+        }
+
+        await prisma.Tarefas.delete({
+            where: {
+                id,
+            },
+        });
+
+        res.status(200).json({ message: "Tarefa excluída com sucesso" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Houve um erro ao excluir a tarefa" });
+    }
+});
+
 app.listen(port, () => {
     console.log(`O servidor está em execução em http://localhost:${port}`);
 });
