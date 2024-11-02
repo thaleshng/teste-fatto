@@ -104,6 +104,69 @@ app.delete("/tarefas/:id", async (req, res) => {
     }
 });
 
+app.put("/tarefas/:id", async (req, res) => {
+    const id = Number(req.params.id);
+    const { nome, custo, data_limite } = req.body;
+
+    if (!nome || custo === undefined || !data_limite) {
+        return res.status(400).json({
+            message:
+                "Todos os campos (nome, custo, data_limite) são obrigatórios.",
+        });
+    }
+
+    const parsedCusto = parseFloat(custo);
+    if (isNaN(parsedCusto)) {
+        return res.status(400).json({
+            message: "O campo 'custo' deve ser um número válido.",
+        });
+    }
+
+    try {
+        const task = await prisma.Tarefas.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!task) {
+            return res.status(404).json({ message: "Tarefa não encontrada." });
+        }
+
+        const duplicateTask = await prisma.Tarefas.findFirst({
+            where: {
+                nome: {
+                    equals: nome,
+                    mode: "insensitive",
+                },
+                id: {
+                    not: id,
+                },
+            },
+        });
+
+        if (duplicateTask) {
+            return res
+                .status(409)
+                .json({ message: "Já existe uma tarefa com esse nome." });
+        }
+
+        const updateTask = await prisma.Tarefas.update({
+            where: { id },
+            data: {
+                nome,
+                custo: parsedCusto,
+                data_limite: new Date(data_limite),
+            },
+        });
+
+        res.status(200).json(updateTask);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Houve um erro ao editar a tarefa." });
+    }
+});
+
 app.listen(port, () => {
     console.log(`O servidor está em execução em http://localhost:${port}`);
 });
