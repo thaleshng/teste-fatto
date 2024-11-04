@@ -7,11 +7,16 @@ const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_json_1 = __importDefault(require("../swagger.json"));
+const swaggerOptions = {
+    swaggerOptions: {
+        supportedSubmitMethods: [],
+    },
+};
 const port = 3000;
 const app = (0, express_1.default)();
 const prisma = new client_1.PrismaClient();
 app.use(express_1.default.json());
-app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_json_1.default));
+app.use("/docs", swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_json_1.default, swaggerOptions));
 app.get("/tarefas", async (_, res) => {
     try {
         const tasks = await prisma.Tarefas.findMany({
