@@ -104,6 +104,41 @@ app.delete("/tarefas/:id", async (req, res) => {
     }
 });
 
+app.put("/tarefas/reordenar", async (req, res) => {
+    const { tarefas } = req.body;
+
+    if (!Array.isArray(tarefas)) {
+        return res
+            .status(400)
+            .json({ message: "O campo 'tarefas' deve ser uma lista." });
+    }
+
+    try {
+        await prisma.$transaction(
+            tarefas.map((tarefa) =>
+                prisma.Tarefas.update({
+                    where: { id: tarefa.id },
+                    data: { ordem_apresentacao: tarefa.id * 1000 },
+                }),
+            ),
+        );
+
+        await prisma.$transaction(
+            tarefas.map((tarefa, index) =>
+                prisma.Tarefas.update({
+                    where: { id: tarefa.id },
+                    data: { ordem_apresentacao: index + 1 },
+                }),
+            ),
+        );
+
+        res.status(200).json({ message: "Lista reordenada com sucesso." });
+    } catch (error) {
+        console.error("Erro ao reordenar tarefas:", error);
+        res.status(500).json({ message: "Erro ao reordenar tarefas." });
+    }
+});
+
 app.put("/tarefas/:id", async (req, res) => {
     const id = Number(req.params.id);
     const { nome, custo, data_limite } = req.body;
