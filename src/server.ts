@@ -97,10 +97,10 @@ app.delete("/tarefas/:id", async (req, res) => {
             },
         });
 
-        res.status(200).json({ message: "Tarefa excluída com sucesso" });
+        res.status(200).json({ message: "Tarefa excluída com sucesso." });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Houve um erro ao excluir a tarefa" });
+        res.status(500).json({ message: "Houve um erro ao excluir a tarefa." });
     }
 });
 
