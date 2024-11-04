@@ -1,0 +1,284 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Task Management API",
+        "description": "API responsável por gerenciar tarefas e operações relacionadas",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/tarefas": {
+            "get": {
+                "tags": ["Tarefa"],
+                "summary": "Obter uma lista com todas as tarefas",
+                "responses": {
+                    "200": {
+                        "description": "Retorna uma lista de tarefas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Tarefa"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Houve um problema ao buscar as tarefas"
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Tarefa"],
+                "summary": "Adicionar uma nova tarefa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TarefaInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tarefa criada com sucesso"
+                    },
+                    "409": {
+                        "description": "Já existe uma tarefa cadastrada com esse nome"
+                    },
+                    "500": {
+                        "description": "Falha ao cadastrar a tarefa"
+                    }
+                }
+            }
+        },
+        "/tarefas/{id}": {
+            "put": {
+                "tags": ["Tarefa"],
+                "summary": "Atualizar uma tarefa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID da tarefa a ser atualizada",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TarefaInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tarefa atualizada com sucesso"
+                    },
+                    "404": {
+                        "description": "Tarefa não encontrada"
+                    },
+                    "409": {
+                        "description": "Já existe uma tarefa com esse nome"
+                    },
+                    "500": {
+                        "description": "Falha ao atualizar o registro da tarefa"
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Tarefa"],
+                "summary": "Remover uma tarefa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID da tarefa a ser removida",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tarefa removida com sucesso"
+                    },
+                    "404": {
+                        "description": "A tarefa não foi encontrada"
+                    },
+                    "500": {
+                        "description": "Ocorreu um erro ao deletar a tarefa"
+                    }
+                }
+            }
+        },
+        "/tarefas/reordenar": {
+            "put": {
+                "tags": ["Tarefa"],
+                "summary": "Reordenar as tarefas",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReordenarTarefasInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lista reordenada com sucesso"
+                    },
+                    "500": {
+                        "description": "Erro ao reordenar tarefas"
+                    }
+                }
+            }
+        },
+        "/tarefas/{id}/mover-cima": {
+            "post": {
+                "tags": ["Tarefa"],
+                "summary": "Mover uma tarefa para cima",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID da tarefa a ser movida para cima",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tarefa movida para cima com sucesso"
+                    },
+                    "400": {
+                        "description": "A tarefa já está no topo da lista"
+                    },
+                    "404": {
+                        "description": "Tarefa não encontrada"
+                    },
+                    "500": {
+                        "description": "Erro ao mover a tarefa para cima"
+                    }
+                }
+            }
+        },
+        "/tarefas/{id}/mover-baixo": {
+            "post": {
+                "tags": ["Tarefa"],
+                "summary": "Mover uma tarefa para baixo",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID da tarefa a ser movida para baixo",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tarefa movida para baixo com sucesso"
+                    },
+                    "400": {
+                        "description": "A tarefa já está na última posição"
+                    },
+                    "404": {
+                        "description": "Tarefa não encontrada"
+                    },
+                    "500": {
+                        "description": "Erro ao mover a tarefa para baixo"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Tarefa": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "ID da tarefa"
+                    },
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome da tarefa"
+                    },
+                    "custo": {
+                        "type": "number",
+                        "description": "Custo da tarefa em reais"
+                    },
+                    "data_limite": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Data limite para a tarefa"
+                    },
+                    "ordem_apresentacao": {
+                        "type": "integer",
+                        "description": "Ordem de apresentação da tarefa"
+                    }
+                }
+            },
+            "TarefaInput": {
+                "type": "object",
+                "required": [
+                    "nome",
+                    "custo",
+                    "data_limite"
+                ],
+                "properties": {
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome da tarefa"
+                    },
+                    "custo": {
+                        "type": "number",
+                        "description": "Custo da tarefa em reais"
+                    },
+                    "data_limite": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Data limite para a tarefa"
+                    }
+                }
+            },
+            "ReordenarTarefasInput": {
+                "type": "object",
+                "required": ["tarefas"],
+                "properties": {
+                    "tarefas": {
+                        "type": "array",
+                        "description": "Lista com IDs e ordem de apresentação das tarefas",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "description": "ID da tarefa"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
