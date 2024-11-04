@@ -225,6 +225,63 @@ app.post("/tarefas/:id/mover-cima", async (req, res) => {
     }
 });
 
+app.post("/tarefas/:id/mover-baixo", async (req, res) => {
+    const id = Number(req.params.id);
+
+    try {
+        const currentTask = await prisma.Tarefas.findUnique({
+            where: { id },
+        });
+
+        if (!currentTask) {
+            return res.status(404).json({ message: "Tarefa não encontrada." });
+        }
+
+        const taskBelow = await prisma.Tarefas.findFirst({
+            where: {
+                ordem_apresentacao: {
+                    gt: currentTask.ordem_apresentacao,
+                },
+            },
+            orderBy: {
+                ordem_apresentacao: "asc",
+            },
+        });
+
+        if (!taskBelow) {
+            return res
+                .status(400)
+                .json({ message: "A tarefa já está na última posição." });
+        }
+
+        const temporaryOrder = currentTask.ordem_apresentacao + 1000;
+
+        await prisma.$transaction([
+            prisma.Tarefas.update({
+                where: { id: currentTask.id },
+                data: { ordem_apresentacao: temporaryOrder },
+            }),
+            prisma.Tarefas.update({
+                where: { id: taskBelow.id },
+                data: { ordem_apresentacao: currentTask.ordem_apresentacao },
+            }),
+            prisma.Tarefas.update({
+                where: { id: currentTask.id },
+                data: { ordem_apresentacao: taskBelow.ordem_apresentacao },
+            }),
+        ]);
+
+        res.status(200).json({
+            message: "Tarefa movida para baixo com sucesso",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Houve um erro ao mover a tarefa para baixo.",
+        });
+    }
+});
+
 app.listen(port, () => {
     console.log(`O servidor está em execução em http://localhost:${port}`);
 });
