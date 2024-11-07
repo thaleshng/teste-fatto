@@ -68,7 +68,7 @@ app.post("/tarefas", async (req, res) => {
             data: {
                 nome,
                 custo: parsedCusto,
-                data_limite: new Date(data_limite),
+                data_limite: new Date(data_limite + "T00:00:00Z"),
                 ordem_apresentacao,
             },
         });
@@ -169,7 +169,7 @@ app.put("/tarefas/:id", async (req, res) => {
             data: {
                 nome,
                 custo: parsedCusto,
-                data_limite: new Date(data_limite),
+                data_limite: new Date(data_limite + "T00:00:00Z"),
             },
         });
         res.status(200).json(updateTask);
